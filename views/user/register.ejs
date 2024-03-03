@@ -1,0 +1,63 @@
+<%- include("../partials/header.ejs") %>
+<div class="container" id="main_content">
+    <div class="container col-xl-10 col-xxl-8">
+        <div class="row align-items-center g-lg-5">
+          <div class="col-md-10 mx-auto col-lg-5">
+            <% if (locals.error) { %>
+              <div class="alert alert-danger alert-dismissible">
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                  <strong>Sorry!</strong>
+                          <%= error %>
+              </div>
+                  <div class="card">
+                      <div class="card-body">
+                        <h4 class="card-title text-center">Signup</h4>
+                        <form action="/register" method="POST">
+                          <div class="mb-3 mt-3">
+                            <label for="email" class="form-label">Email:</label>
+                            <input type="email" class="form-control" id="email" placeholder="Enter email" name="username">
+                          </div>
+                          <div class="mb-3">
+                            <label for="pwd" class="form-label">Password:</label>
+                            <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="password">
+                          </div>
+                          <div class="mb-3">
+                              <label for="pwd" class="form-label">Confirm Password:</label>
+                              <input type="password" class="form-control" id="pwd" placeholder="Enter password again" name="confirmPassword">
+                            </div>
+                          <div class="d-grid">
+                              <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                          </div>
+                        </form>
+                      </div>
+                  </div>
+                  <% } else { %>
+                    <div class="card">
+                      <div class="card-body">
+                        <h4 class="card-title text-center">Signup</h4>
+                        <form action="/register" method="POST">
+                          <div class="mb-3 mt-3">
+                            <label for="email" class="form-label">Email:</label>
+                            <input type="email" class="form-control" id="email" placeholder="Enter email" name="username">
+                          </div>
+                          <div class="mb-3">
+                            <label for="pwd" class="form-label">Password:</label>
+                            <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="password">
+                          </div>
+                          <div class="mb-3">
+                              <label for="pwd" class="form-label">Confirm Password:</label>
+                              <input type="password" class="form-control" id="pwd" placeholder="Enter password again" name="confirmPassword">
+                            </div>
+                          <div class="d-grid">
+                              <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                          </div>
+                        </form>
+                      </div>
+                  </div>
+                  <% } %>
+          </div>
+        </div>
+    </div>
+</div>
+
+<%- include("../partials/footer.ejs") %>

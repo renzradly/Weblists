@@ -1,0 +1,13 @@
+body {
+    /* start body required properties - this will help make the footer stay on the bottom of the page*/
+     display: flex;
+     flex-direction: column;
+     min-height: 100vh;
+     /* end body required properties */
+     margin: 0;
+   }
+
+#main_content {
+    /* it will grow the entire main content and help push down the footer content at the very bottom */
+    flex-grow: 1;
+}
