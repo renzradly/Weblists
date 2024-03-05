@@ -11,3 +11,7 @@ body {
     /* it will grow the entire main content and help push down the footer content at the very bottom */
     flex-grow: 1;
 }
+
+#profileImage {
+    font-size: .80rem;
+}
