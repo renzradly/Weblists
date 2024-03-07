@@ -1,5 +1,42 @@
 <%- include("../partials/profileHeader.ejs") %>
-<div class="container" id="main_content">
-    <h1>uploads</h1>
-</div>
+    <div class="container" id="main_content">
+        <div class="container col-xl-10 col-xxl-8 mt-5">
+            <div class="row align-items-center g-lg-5">
+              <div class="col-md-10 mx-auto col-lg-5 w-100">
+                      <div class="card">
+                          <div class="card-body">
+                            <h4 class="card-title text-center">Upload</h4>
+                            <form action="#" method="POST">
+                              <div class="mb-3 mt-3">
+                                <label for="chooseCategory" class="form-label">Choose Category:</label>
+                                <select class="form-select" aria-label="Default select example">
+                                    <option value="housing">Housing</option>
+                                    <option value="jobs">Jobs</option>
+                                    <option value="services">Services</option>
+                                    <option value="forSale">For Sale</option>
+                                    <option value="other">Other</option>
+                                </select>
+                              </div>
+                              <div class="mb-3 mt-3">
+                                <label for="listName" class="form-label">Name:</label>
+                                <input type="text" class="form-control" id="listName" placeholder="Name your list..." name="listName">
+                              </div>
+                              <div class="mb-3">
+                                <label for="descriptionTextArea" class="form-label">Description:</label>
+                                <textarea class="form-control" id="descriptionTextArea" placeholder="Enter description..." rows="3"></textarea>
+                              </div>
+                              <div class="mb-3">
+                                  <label for="imageUpload" class="form-label">Upload Image:</label>
+                                  <input type="file" class="form-control" id="imageUpload" name="imageUpload">
+                                </div>
+                              <div class="d-grid pt-4">
+                                  <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                              </div>
+                            </form>
+                          </div>
+                      </div>
+              </div>
+            </div>
+        </div>
+    </div>
 <%- include("../partials/footer.ejs") %>

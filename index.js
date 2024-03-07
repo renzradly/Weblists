@@ -36,23 +36,53 @@ const db = new pg.Client({
 db.connect();
 
 app.get("/", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render("./user/profile.ejs", {
+        user: req.user.email,
+    });
+  } else {
     res.render("navigation/home.ejs");
+  }
 });
 
 app.get("/about", (req, res) => {
-    res.render("navigation/about.ejs");
+  if (req.isAuthenticated()) {
+    res.render("./user/profile.ejs", {
+        user: req.user.email,
+    });
+  } else {
+    res.render("navigation/about.ejs")
+  }
 });
 
 app.get("/contact", (req, res) => {
-    res.render("navigation/contact.ejs");
+  if (req.isAuthenticated()) {
+    res.render("./user/profile.ejs", {
+        user: req.user.email,
+    });
+  } else {
+    res.render("navigation/contact.ejs")
+  }
 });
 
 app.get("/login", (req, res) => {
-    res.render("./user/login.ejs");
+  if (req.isAuthenticated()) {
+    res.render("./user/profile.ejs", {
+        user: req.user.email,
+    });
+  } else {
+    res.render("./user/login.ejs")
+  }
 });
 
 app.get("/register", (req, res) => {
-    res.render("./user/register.ejs");
+  if (req.isAuthenticated()) {
+    res.render("./user/profile.ejs", {
+        user: req.user.email,
+    });
+  } else {
+    res.render("./user/register.ejs")
+  }
 });
 
 app.post("/register", async (req, res) => {
@@ -154,15 +184,15 @@ passport.use(new Strategy(async function verify(username, password, cb){
                       if (matchedPassword) {
                         return cb(null, user);
                       } else {
-                          return cb("Sorry wrong password! Go back and enter correct password.");
+                          return cb("Sorry wrong password! Go back and enter your correct password.");
                       } 
                   }
               });
           } else {
-              return cb("Email not found. Please register first.");
+              return cb("Email not found. Please go back and register first.");
           }
     } catch (err) {
-      console.log(err)
+      return cb(err);
     }
 }));
 

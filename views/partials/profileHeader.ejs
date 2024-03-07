@@ -16,10 +16,10 @@
         
           <strong>Weblists</strong>
           </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+        <button class="navbar-toggler d-none" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="mynavbar">
+        <div class="collapse navbar-collapse d-none" id="mynavbar">
           <ul class="navbar-nav me-auto">
             <li class="nav-item">
               <a class="nav-link" href="/profile">Profile</a>
@@ -49,7 +49,21 @@
           </div>
           <hr>
         </div>
+        <div class="dropdown dropstart d-block d-sm-none">
+          <a href="#" class="d-flex align-items-center link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle">
+          </a>
+          <ul class="dropdown-menu text-small shadow">
+            <li><a class="dropdown-item" href="/profile">Profile</a></li>
+            <li><a class="dropdown-item" href="/uploads">Uploads</a></li>
+            <li><a class="dropdown-item" href="/messages">Messages</a></li>
+            <li><a class="dropdown-item" href="#">Change Password</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+          </ul>
+        </div>
       </nav>
+      
   </div>
 
 
