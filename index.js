@@ -45,6 +45,56 @@ app.get("/", (req, res) => {
   }
 });
 
+app.get("/housing", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render("./user/profile.ejs", {
+        user: req.user.email,
+    });
+  } else {
+    res.render("categories/housing.ejs")
+  }
+});
+
+app.get("/jobs", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render("./user/profile.ejs", {
+        user: req.user.email,
+    });
+  } else {
+    res.render("categories/jobs.ejs")
+  }
+});
+
+app.get("/services", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render("./user/profile.ejs", {
+        user: req.user.email,
+    });
+  } else {
+    res.render("categories/services.ejs")
+  }
+});
+
+app.get("/forSale", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render("./user/profile.ejs", {
+        user: req.user.email,
+    });
+  } else {
+    res.render("categories/forSale.ejs")
+  }
+});
+
+app.get("/other", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render("./user/profile.ejs", {
+        user: req.user.email,
+    });
+  } else {
+    res.render("categories/other.ejs")
+  }
+});
+
 app.get("/about", (req, res) => {
   if (req.isAuthenticated()) {
     res.render("./user/profile.ejs", {
@@ -162,6 +212,16 @@ app.get("/uploads", (req, res) => {
 app.get("/messages", (req, res) => {
     if (req.isAuthenticated()) {
         res.render("./user/messages.ejs", {
+            user: req.user.email,
+        });
+      } else {
+        res.redirect("/login")
+      }
+});
+
+app.get("/changePassword", (req, res) => {
+    if (req.isAuthenticated()) {
+        res.render("./user/changePassword.ejs", {
             user: req.user.email,
         });
       } else {
