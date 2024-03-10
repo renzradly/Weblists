@@ -6,14 +6,18 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy } from "passport-local";
 import env from "dotenv";
+import fileUpload from "express-fileupload";
+import fs from 'fs';
 
 const app = express();
-const port = 3000;
-const saltingRounds  = 10;
+const port = 8000;
+const saltingRounds  = 10;  
+
 env.config();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.use(fileUpload());
 
 //session should be first before passport
 app.use(session({
@@ -45,13 +49,21 @@ app.get("/", (req, res) => {
   }
 });
 
-app.get("/housing", (req, res) => {
+app.get("/housing", async(req, res) => {
+  const categ = "housing";
   if (req.isAuthenticated()) {
     res.render("./user/profile.ejs", {
         user: req.user.email,
     });
   } else {
-    res.render("categories/housing.ejs")
+    const result = await db.query("SELECT * FROM user_uploads WHERE category = $1", [categ]);
+    var ako = result.rows[4];
+
+    const displayImg = "data:imag/png;base64," + ako.image_uploaded.toString("base64");
+    console.log(displayImg)
+    res.render("categories/housing.ejs", {
+        image: displayImg
+    });
   }
 });
 
@@ -145,7 +157,7 @@ app.post("/register", async (req, res) => {
 
     if (userEmail === "" && userPassword === "") {
         res.render("./user/register.ejs",{
-        error: "Please enter your email address, password and confirm your password."
+        error: "All boxes should not be empty."
         });
     } else {
             if(emailExist.rows.length > 0) {
@@ -209,6 +221,28 @@ app.get("/uploads", (req, res) => {
       }
 });
 
+app.post("/uploads", async (req, res) => {
+  const uploadCategory = req.body;
+  const {name, data} = req.files.imageUpload;
+  console.log(req.user.id);
+  console.log(req.user.email);
+  console.log(name);
+
+  if (uploadCategory.listName === "" && uploadCategory.description === "") {
+      res.render("./user/uploads.ejs", {
+      user: req.user.email,
+      error: "Type and Description are required to upload." 
+    });
+  } else {
+      const result = await db.query("INSERT INTO user_uploads (category, category_type, category_description, image_name, image_uploaded, users_id) VALUES ($1, $2, $3, $4, $5, $6)",
+      [uploadCategory.categories, uploadCategory.listName, uploadCategory.description, name, data, req.user.id]);
+      res.render("./user/uploads.ejs", {
+      user: req.user.email,
+      success: "It is saved to the database. Upload again."
+    });
+  }
+});
+
 app.get("/messages", (req, res) => {
     if (req.isAuthenticated()) {
         res.render("./user/messages.ejs", {
@@ -245,7 +279,7 @@ passport.use(new Strategy(async function verify(username, password, cb){
                         return cb(null, user);
                       } else {
                           return cb("Sorry wrong password! Go back and enter your correct password.");
-                      } 
+                      }
                   }
               });
           } else {

@@ -6,7 +6,7 @@
               <% if (locals.success) { %>
                 <div class="alert alert-success alert-dismissible">
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    <strong>Alright!</strong>
+                    <strong>Success!</strong>
                             <%= success %>
                 </div>
                 <div class="card">
@@ -31,7 +31,7 @@
                   <% } else if (locals.error) { %>
                     <div class="alert alert-danger alert-dismissible">
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        <strong>Opss!</strong>
+                        <strong>Error!</strong>
                                 <%= error %>
                     </div>
                     <div class="card">
