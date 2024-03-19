@@ -7,10 +7,9 @@ import passport from "passport";
 import { Strategy } from "passport-local";
 import env from "dotenv";
 import fileUpload from "express-fileupload";
-import fs from 'fs';
 
 const app = express();
-const port = 8000;
+const port = 3000;
 const saltingRounds  = 10;  
 
 env.config();
@@ -56,14 +55,7 @@ app.get("/housing", async(req, res) => {
         user: req.user.email,
     });
   } else {
-    const result = await db.query("SELECT * FROM user_uploads WHERE category = $1", [categ]);
-    var ako = result.rows[4];
-
-    const displayImg = "data:imag/png;base64," + ako.image_uploaded.toString("base64");
-    console.log(displayImg)
-    res.render("categories/housing.ejs", {
-        image: displayImg
-    });
+    res.render("categories/housing.ejs")
   }
 });
 
@@ -223,10 +215,6 @@ app.get("/uploads", (req, res) => {
 
 app.post("/uploads", async (req, res) => {
   const uploadCategory = req.body;
-  const {name, data} = req.files.imageUpload;
-  console.log(req.user.id);
-  console.log(req.user.email);
-  console.log(name);
 
   if (uploadCategory.listName === "" && uploadCategory.description === "") {
       res.render("./user/uploads.ejs", {
@@ -234,8 +222,8 @@ app.post("/uploads", async (req, res) => {
       error: "Type and Description are required to upload." 
     });
   } else {
-      const result = await db.query("INSERT INTO user_uploads (category, category_type, category_description, image_name, image_uploaded, users_id) VALUES ($1, $2, $3, $4, $5, $6)",
-      [uploadCategory.categories, uploadCategory.listName, uploadCategory.description, name, data, req.user.id]);
+      const result = await db.query("INSERT INTO user_uploads (category, category_type, category_description, users_id) VALUES ($1, $2, $3, $4)",
+      [uploadCategory.categories, uploadCategory.listName, uploadCategory.description, req.user.id]);
       res.render("./user/uploads.ejs", {
       user: req.user.email,
       success: "It is saved to the database. Upload again."
