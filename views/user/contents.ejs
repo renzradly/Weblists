@@ -1,0 +1,105 @@
+<%- include("../partials/profileHeader.ejs") %>
+<div class="container" id="main_content">
+    <div class="row mt-5">
+            <% if(allList.length) { %>
+                <% allList.forEach(list => { %>
+                  
+                
+              <div class="col-sm-3">
+              <div class="card text-dark bg-light mb-3">
+                <% if(list.image_uploaded) {%>
+                <img class="card-img-top" src="<%= `images/${list.users_id}/${list.image_uploaded}` %>" alt="<%= list.image_uploaded %>">
+                <%} else {%>
+                <img class="card-img-top" src="<%= `images/default_image.jpg` %>" alt="no image uploaded">
+                <% } %>
+                <div class="card-body">
+                  <h6 class="card-title"><%= list.category_type %></h6>
+                  <p class="card-text">
+                    <%= list.category_description %>
+                  </p>
+                  
+                </div>
+                <div class="card-footer">
+                  <p class="float-end mb-0">
+                      <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="<%= `#id${list.id}` %>">
+                        Update
+                      </button>
+                    <form action="/contents" method="POST">
+                      <input type="hidden" name="contentsID" value="<%= list.id %>">
+                      <input type="hidden" name="imageName" value="<%= list.image_uploaded %>">
+                      <button class="btn btn-danger btn-sm float-end me-1">Delete</button>
+                    </form>
+                  </p>
+                </div>
+              </div>
+            </div>
+                <!-- Modal -->
+                  <div class="modal fade" id="<%= `id${list.id}` %>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="staticBackdropLabel">Update Details</h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <form action="/" method="POST" enctype="multipart/form-data">
+                            <div class="mb-3">
+                              <label for="chooseCategory" class="form-label"
+                                >Current Category: <strong><%= list.category %></strong></label
+                              >
+                              <select
+                                class="form-select"
+                                aria-label="Default select example"
+                                name="categories"
+                              >
+                              <option value="housing">Housing</option>
+                              <option value="jobs">Jobs</option>
+                              <option value="services">Services</option>
+                              <option value="forSale">For Sale</option>
+                              <option value="other">Other</option>
+                              </select>
+                            </div>
+                            <div class="mb-3 mt-3">
+                              <label for="listName" class="form-label">Type:</label>
+                              <input
+                                type="text"
+                                name="listName"
+                                class="form-control"
+                                id="listName"
+                                value="<%= list.category_type %>"
+                                placeholder="e.g apartment, service crew, home service, selling electric fan, other services offered."
+                              />
+                            </div>
+                            <div class="mb-3">
+                              <label for="descriptionTextArea" class="form-label"
+                                >Description:</label
+                              >
+                              <textarea
+                                name="description"
+                                class="form-control"
+                                id="descriptionTextArea"
+                                rows="3"
+                              ><%= list.category_description %></textarea>
+                            </div>
+                            <div class="mb-3">
+                              <label for="imageUpload" class="form-label"
+                                >Current Image: <strong><%= list.image_uploaded %></strong></label
+                              >
+                              <input type="file" name="imageUpload" class="form-control"/>
+                            </div>
+                          </form>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          <button type="button" class="btn btn-primary">Save</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              <% }); %>
+            <% } else { %>
+              <p class="text-center">You don't have contents yet.</p>
+            <% } %>
+      </div>
+</div>
+<%- include("../partials/footer.ejs") %>

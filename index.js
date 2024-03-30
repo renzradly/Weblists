@@ -11,7 +11,8 @@ import fs from "fs";
 import path from "path";
 
 const app = express();
-const port = 4000;
+const port = 3000;
+app.set('view engine', 'ejs');
 
 //number of times for salting password
 const saltingRounds = 10;
@@ -93,16 +94,9 @@ app.get("/housing", upload, async (req, res) => {
       "SELECT * FROM user_uploads WHERE category = $1",
       [categ]
     );
-    const image = result.rows[1].image_uploaded;
-    const id = result.rows[1].users_id;
-    const category = result.rows[1].category_type;
-    const category_description = result.rows[1].category_description;
-    console.log(image);
-    console.log(id);
+    const checkRows = result.rows;
     res.render("categories/housing.ejs", {
-      uploadedImage: `images/${id}/${image}`,
-      category: category,
-      description: category_description,
+      housingList: checkRows,
     });
   }
 });
@@ -157,7 +151,7 @@ app.get("/about", (req, res) => {
   }
 });
 
-app.get("/contact", (req, res) => {
+app.get("/contact", async(req, res) => {
   if (req.isAuthenticated()) {
     res.render("./user/profile.ejs", {
       user: req.user.email,
@@ -299,62 +293,67 @@ function checkFileTypes(file, cb) {
   }
 }
 
-app.post("/uploads", upload, async function (req, res) {
-  // req.file is the name of your file in the form above, here 'uploaded_file'
-  // req.body will hold the text fields, if there were any
-  console.log(req.file, req.body);
-  const category = req.body.categories;
-  const category_type = req.body.listName;
-  const category_description = req.body.description;
+//creating folder to separate user, uploading files to server and database
+app.post("/uploads", function (req, res) {
+  const createFolder = path.join("public/images/", `${req.user.id}`);
 
-  const result = await db.query(
-    "INSERT INTO user_uploads (category, category_type, category_description, users_id, image_uploaded) VALUES ($1, $2, $3, $4, $5)",
-    [
-      category,
-      category_type,
-      category_description,
-      req.user.id,
-      req.file.filename,
-    ]
-  );
+  if (!fs.existsSync(createFolder)) {
+    fs.mkdirSync(createFolder);
+    upload(req, res, async (err) => {
+      if (err) {
+        res.render("./user/uploads.ejs", {
+          error: err,
+          user: req.user.email,
+        });
+      } else {
+        const category = req.body.categories;
+        const category_type = req.body.listName;
+        const category_description = req.body.description;
+        const result = await db.query(
+          "INSERT INTO user_uploads (category, category_type, category_description, users_id, image_uploaded) VALUES ($1, $2, $3, $4, $5)",
+          [
+            category,
+            category_type,
+            category_description,
+            req.user.id,
+            req.file.filename,
+          ]
+        );
+        res.render("./user/uploads.ejs", {
+          success: "File uploaded.",
+          user: req.user.email,
+        });
+      }
+    });
+  } else {
+    upload(req, res, async (err) => {
+      if (err) {
+        res.render("./user/uploads.ejs", {
+          error: err,
+          user: req.user.email,
+        });
+      } else {
+        const category = req.body.categories;
+        const category_type = req.body.listName;
+        const category_description = req.body.description;
+        const result = await db.query(
+          "INSERT INTO user_uploads (category, category_type, category_description, users_id, image_uploaded) VALUES ($1, $2, $3, $4, $5)",
+          [
+            category,
+            category_type,
+            category_description,
+            req.user.id,
+            req.file.filename,
+          ]
+        );
+        res.render("./user/uploads.ejs", {
+          success: "File uploaded.",
+          user: req.user.email,
+        });
+      }
+    });
+  }
 });
-
-//upload images
-// app.post("/uploads", async (req, res) => {
-//   const createFolder = path.join("public/images/", `${req.user.id}`);
-
-//   if (!fs.existsSync(createFolder)) {
-//     fs.mkdirSync(createFolder);
-//     upload(req, res, (err) => {
-//       console.log(upload.filename);
-//       if (err) {
-//         res.render("./user/uploads.ejs", {
-//           error: err,
-//           user: req.user.email,
-//         });
-//       } else {
-//         res.render("./user/uploads.ejs", {
-//           success: "File uploaded.",
-//           user: req.user.email,
-//         });
-//       }
-//     });
-//   } else {
-//     upload(req, res, (err) => {
-//       if (err) {
-//         res.render("./user/uploads.ejs", {
-//           error: err,
-//           user: req.user.email,
-//         });
-//       } else {
-//         res.render("./user/uploads.ejs", {
-//           success: "File uploaded.",
-//           user: req.user.email,
-//         });
-//       }
-//     });
-//   }
-// });
 
 app.get("/messages", (req, res) => {
   if (req.isAuthenticated()) {
@@ -364,6 +363,57 @@ app.get("/messages", (req, res) => {
   } else {
     res.redirect("/login");
   }
+});
+
+//outputing uploaded from user
+app.get("/contents", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.redirect("/login");
+  } else {
+    const idOfCurrentUser = req.user.id;
+    const result = await db.query(
+      "SELECT * FROM user_uploads WHERE users_id = $1 ORDER BY id DESC",
+      [idOfCurrentUser]
+    );
+    const checkRows = result.rows;
+    res.render("./user/contents.ejs", {
+      allList: checkRows,
+      user: req.user.email,
+    });
+  }
+
+});
+
+//delete an items
+app.post("/contents", async (req, res) => {
+    const idOfContentsToDelete = req.body.contentsID;
+    const meImage = req.body.imageName;
+   
+    try {
+      fs.unlink(`public/images/${req.user.id}/${meImage}`, async (err) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("image deleted.");
+          const result = await db.query(
+            "DELETE FROM user_uploads WHERE id = $1",
+            [idOfContentsToDelete]
+          );
+          const idOfCurrentUser = req.user.id;
+          const checkRows = await db.query(
+            "SELECT * FROM user_uploads WHERE users_id = $1 ORDER BY id DESC",
+            [idOfCurrentUser]
+          );
+          const updatedRows = checkRows.rows;
+          res.render("./user/contents.ejs", {
+            allList: updatedRows,
+            user: req.user.email,
+          });
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
 });
 
 app.get("/changePassword", (req, res) => {

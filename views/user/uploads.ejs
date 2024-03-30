@@ -1,87 +1,86 @@
 <%- include("../partials/profileHeader.ejs") %>
 <div class="container" id="main_content">
-  <div class="container col-xl-10 col-xxl-8 mt-5">
-    <div class="row align-items-center g-lg-5">
-      <div class="col-md-10 mx-auto col-lg-5 w-100">
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title text-center">Upload</h4>
-            <% if (locals.error) { %>
-            <div class="alert alert-danger alert-dismissible">
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-              ></button>
-              <strong>Error!</strong>
-              <%= error %>
-            </div>
-            <% } %> <% if (locals.success) { %>
-            <div class="alert alert-success alert-dismissible">
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-              ></button>
-              <strong>Success!</strong>
-              <%= success %>
-            </div>
-            <% } %>
-            <form action="/uploads" method="POST" enctype="multipart/form-data">
-              <div class="mb-3 mt-3">
-                <label for="chooseCategory" class="form-label"
-                  >Choose Category:</label
-                >
-                <select
-                  class="form-select"
-                  aria-label="Default select example"
-                  name="categories"
-                >
-                  <option value="housing">Housing</option>
-                  <option value="jobs">Jobs</option>
-                  <option value="services">Services</option>
-                  <option value="forSale">For Sale</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div class="mb-3 mt-3">
-                <label for="listName" class="form-label">Type:</label>
-                <input
-                  type="text"
-                  name="listName"
-                  class="form-control"
-                  id="listName"
-                  placeholder="e.g apartment, service crew, home service, selling electric fan, other services offered."
-                />
-              </div>
-              <div class="mb-3">
-                <label for="descriptionTextArea" class="form-label"
-                  >Description:</label
-                >
-                <textarea
-                  name="description"
-                  class="form-control"
-                  id="descriptionTextArea"
-                  placeholder="Enter description..."
-                  rows="3"
-                ></textarea>
-              </div>
-              <div class="mb-3">
-                <label for="imageUpload" class="form-label"
-                  >Choose Image:</label
-                >
-                <input type="file" name="imageUpload" class="form-control" />
-              </div>
-              <div class="d-grid pt-4">
-                <button type="submit" class="btn btn-primary btn-block">
-                  Submit
-                </button>
-              </div>
-            </form>
-          </div>
+  <div class="row mt-5">
+    <div class="col-sm-6 mb-3 mx-auto">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title text-center">Upload a List</h4>
+        <% if (locals.error) { %>
+        <div class="alert alert-danger alert-dismissible">
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+          ></button>
+          <strong>Error!</strong>
+          <%= error %>
         </div>
+        <% } %> <% if (locals.success) { %>
+        <div class="alert alert-success alert-dismissible">
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+          ></button>
+          <strong>Success!</strong>
+          <%= success %>
+        </div>
+        <% } %>
+        <form action="/uploads" method="POST" enctype="multipart/form-data">
+          <div class="mb-3 mt-3">
+            <label for="chooseCategory" class="form-label"
+              >Choose Category:</label
+            >
+            <select
+              class="form-select"
+              aria-label="Default select example"
+              name="categories"
+            >
+              <option value="housing">Housing</option>
+              <option value="jobs">Jobs</option>
+              <option value="services">Services</option>
+              <option value="forSale">For Sale</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="mb-3 mt-3">
+            <label for="listName" class="form-label">Type:</label>
+            <input
+              type="text"
+              name="listName"
+              class="form-control"
+              id="listName"
+              placeholder="e.g apartment, service crew, home service, selling electric fan, other services offered."
+            />
+          </div>
+          <div class="mb-3">
+            <label for="descriptionTextArea" class="form-label"
+              >Description:</label
+            >
+            <textarea
+              name="description"
+              class="form-control"
+              id="descriptionTextArea"
+              placeholder="Enter description..."
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="imageUpload" class="form-label"
+              >Choose Image:</label
+            >
+            <input type="file" name="imageUpload" class="form-control" />
+          </div>
+          <div class="d-grid pt-4">
+            <button type="submit" class="btn btn-primary btn-block">
+              Submit
+            </button>
+          </div>
+        </form>
       </div>
     </div>
+    </div>
   </div>
+
 </div>
 <%- include("../partials/footer.ejs") %>
