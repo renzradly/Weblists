@@ -12,7 +12,7 @@ import path from "path";
 
 const app = express();
 const port = 3000;
-app.set('view engine', 'ejs');
+app.set("view engine", "ejs");
 
 //number of times for salting password
 const saltingRounds = 10;
@@ -151,7 +151,7 @@ app.get("/about", (req, res) => {
   }
 });
 
-app.get("/contact", async(req, res) => {
+app.get("/contact", async (req, res) => {
   if (req.isAuthenticated()) {
     res.render("./user/profile.ejs", {
       user: req.user.email,
@@ -275,7 +275,7 @@ app.get("/uploads", (req, res) => {
 
 //function to check the file types of the file trying to upload
 function checkFileTypes(file, cb) {
-  //allowed extension
+  //allowed extension - below is a regular expression
   const fileTypes = /jpeg|jpg|png|gif/;
   //check the extension base on user file
   const fileExtenstions = fileTypes.test(
@@ -293,30 +293,44 @@ function checkFileTypes(file, cb) {
   }
 }
 
+//function to get the current date based on timezone
+function getDate(newDate) {
+  var currentDate = newDate.getDate();
+  var currentMonth = newDate.getMonth();
+  var currentYear = newDate.getFullYear();
+  var currentHours = newDate.getHours()+8;
+  var currentMinutes = newDate.getMinutes();
+  var currentSeconds = newDate.getSeconds();
+  var convertedDate = new Date(Date.UTC(currentYear,currentMonth,currentDate, currentHours, currentMinutes, currentSeconds));
+  var finalDateTime = convertedDate.toLocaleString('fil-PH', { timeZone: 'UTC' });
+  return finalDateTime;
+}
+
 //creating folder to separate user, uploading files to server and database
 app.post("/uploads", function (req, res) {
   const createFolder = path.join("public/images/", `${req.user.id}`);
-
   if (!fs.existsSync(createFolder)) {
     fs.mkdirSync(createFolder);
     upload(req, res, async (err) => {
       if (err) {
         res.render("./user/uploads.ejs", {
-          error: err,
+          error: err, 
           user: req.user.email,
         });
       } else {
+        const finalDateTime = getDate(new Date());
         const category = req.body.categories;
         const category_type = req.body.listName;
         const category_description = req.body.description;
         const result = await db.query(
-          "INSERT INTO user_uploads (category, category_type, category_description, users_id, image_uploaded) VALUES ($1, $2, $3, $4, $5)",
+          "INSERT INTO user_uploads (category, category_type, category_description, users_id, image_uploaded, date_added) VALUES ($1, $2, $3, $4, $5, $6)",
           [
             category,
             category_type,
             category_description,
             req.user.id,
             req.file.filename,
+            finalDateTime
           ]
         );
         res.render("./user/uploads.ejs", {
@@ -333,17 +347,19 @@ app.post("/uploads", function (req, res) {
           user: req.user.email,
         });
       } else {
+        const finalDateTime = getDate(new Date());
         const category = req.body.categories;
         const category_type = req.body.listName;
         const category_description = req.body.description;
         const result = await db.query(
-          "INSERT INTO user_uploads (category, category_type, category_description, users_id, image_uploaded) VALUES ($1, $2, $3, $4, $5)",
+          "INSERT INTO user_uploads (category, category_type, category_description, users_id, image_uploaded, date_added) VALUES ($1, $2, $3, $4, $5, $6)",
           [
             category,
             category_type,
             category_description,
             req.user.id,
             req.file.filename,
+            finalDateTime
           ]
         );
         res.render("./user/uploads.ejs", {
@@ -381,39 +397,101 @@ app.get("/contents", async (req, res) => {
       user: req.user.email,
     });
   }
-
 });
 
 //delete an items
 app.post("/contents", async (req, res) => {
-    const idOfContentsToDelete = req.body.contentsID;
-    const meImage = req.body.imageName;
-   
-    try {
-      fs.unlink(`public/images/${req.user.id}/${meImage}`, async (err) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log("image deleted.");
-          const result = await db.query(
-            "DELETE FROM user_uploads WHERE id = $1",
-            [idOfContentsToDelete]
-          );
-          const idOfCurrentUser = req.user.id;
-          const checkRows = await db.query(
-            "SELECT * FROM user_uploads WHERE users_id = $1 ORDER BY id DESC",
-            [idOfCurrentUser]
-          );
-          const updatedRows = checkRows.rows;
-          res.render("./user/contents.ejs", {
-            allList: updatedRows,
-            user: req.user.email,
-          });
-        }
-      });
-    } catch (error) {
-      console.log(error);
+  const idOfContentsToDelete = req.body.contentsID;
+  const myImage = req.body.imageName;
+
+  try {
+    fs.unlink(`public/images/${req.user.id}/${myImage}`, async (err) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("image deleted.");
+        const result = await db.query(
+          "DELETE FROM user_uploads WHERE id = $1",
+          [idOfContentsToDelete]
+        );
+        const idOfCurrentUser = req.user.id;
+        const checkRows = await db.query(
+          "SELECT * FROM user_uploads WHERE users_id = $1 ORDER BY id DESC",
+          [idOfCurrentUser]
+        );
+        const updatedRows = checkRows.rows;
+        res.render("./user/contents.ejs", {
+          allList: updatedRows,
+          user: req.user.email,
+        });
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+//get the post to update category
+app.post("/updateCateg/:id", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.redirect("/login");
+  } else {
+    const finalDateTime = getDate(new Date());
+    const idOfContentsToUpdate = req.params.id;
+    const category = req.body.categories;;
+      const updateRow = await db.query(
+        "UPDATE user_uploads SET category = $1, date_updated = $2 WHERE id = $3",
+        [
+          category, finalDateTime, idOfContentsToUpdate
+        ]
+      );
+      res.redirect("/contents");
+  }
+});
+
+//get the post to update categ_type
+app.post("/updateCategType/:id", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.redirect("/login");
+  } else {
+    const finalDateTime = getDate(new Date());
+    const idOfContentsToUpdate = req.params.id;
+    const category_type = req.body.editType;
+    if (category_type.length > 50) {
+      res.send("50 charaters only allowed.")
+    } else {
+      const updateRow = await db.query(
+        "UPDATE user_uploads SET category_type = $1, date_updated = $2 WHERE id = $3",
+        [
+          category_type, finalDateTime, idOfContentsToUpdate
+        ]
+      );
+      res.redirect("/contents");
     }
+    
+  }
+});
+
+//get the post to update categ_description
+app.post("/updateCategDescription/:id", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.redirect("/login");
+  } else {
+    const finalDateTime = getDate(new Date());
+    const idOfContentsToUpdate = req.params.id;
+    const category_description = req.body.editDescription;
+    if (category_description.length > 500) {
+      res.send("500 charaters only allowed.")
+    } else {
+      const updateRow = await db.query(
+        "UPDATE user_uploads SET category_description = $1, date_updated = $2 WHERE id = $3",
+        [
+          category_description, finalDateTime, idOfContentsToUpdate
+        ]
+      );
+      res.redirect("/contents");
+    }
+  }
 });
 
 app.get("/changePassword", (req, res) => {

@@ -1,105 +1,163 @@
 <%- include("../partials/profileHeader.ejs") %>
 <div class="container" id="main_content">
     <div class="row mt-5">
+      <% if (locals.error) { %>
+        <div class="alert alert-danger alert-dismissible">
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+          ></button>
+          <strong>Error!</strong>
+          <%= error %>
+        </div>
+        <% } %>
             <% if(allList.length) { %>
                 <% allList.forEach(list => { %>
-                  
-                
               <div class="col-sm-3">
               <div class="card text-dark bg-light mb-3">
+                <div class="card-header">
+                  <span class="badge bg-info text-dark"><%= list.category %></span> <a href="#" data-bs-toggle="modal" data-bs-target="<%= `#id${list.id}2` %>"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
+                  </svg></a>
+                </a></div>
                 <% if(list.image_uploaded) {%>
+                  <a href="/"> 
                 <img class="card-img-top" src="<%= `images/${list.users_id}/${list.image_uploaded}` %>" alt="<%= list.image_uploaded %>">
+              </a>
                 <%} else {%>
                 <img class="card-img-top" src="<%= `images/default_image.jpg` %>" alt="no image uploaded">
                 <% } %>
                 <div class="card-body">
-                  <h6 class="card-title"><%= list.category_type %></h6>
+                  <h6 class="card-title"><%= list.category_type %>
+                  <a href="#" data-bs-toggle="modal" data-bs-target="<%= `#id${list.id}` %>">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                      <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
+                    </svg>
+                  </a>
+                  </h6>
                   <p class="card-text">
-                    <%= list.category_description %>
+                    <%= list.category_description + " " %> <a href="#" data-bs-toggle="modal" data-bs-target="<%= `#id${list.id}1` %>"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                      <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
+                    </svg></a>
                   </p>
                   
                 </div>
                 <div class="card-footer">
+                  <p class="float-start mb-0" style="font-size:small;">
+                    <% if (list.date_added && list.date_updated) { %>
+                      <strong>Posted:</strong> <%= list.date_added %> <br>
+                      <strong>Updated:</strong> <%= list.date_updated %>
+                    <% } else { %>
+                      Posted: <%= list.date_added %>
+                    <% } %>
+                  </p>
                   <p class="float-end mb-0">
-                      <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="<%= `#id${list.id}` %>">
-                        Update
-                      </button>
                     <form action="/contents" method="POST">
                       <input type="hidden" name="contentsID" value="<%= list.id %>">
                       <input type="hidden" name="imageName" value="<%= list.image_uploaded %>">
-                      <button class="btn btn-danger btn-sm float-end me-1">Delete</button>
+                      <button class="btn btn-danger btn-sm float-end">Delete</button>
                     </form>
                   </p>
                 </div>
               </div>
             </div>
-                <!-- Modal -->
-                  <div class="modal fade" id="<%= `id${list.id}` %>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h1 class="modal-title fs-5" id="staticBackdropLabel">Update Details</h1>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                          <form action="/" method="POST" enctype="multipart/form-data">
-                            <div class="mb-3">
-                              <label for="chooseCategory" class="form-label"
-                                >Current Category: <strong><%= list.category %></strong></label
-                              >
-                              <select
-                                class="form-select"
-                                aria-label="Default select example"
-                                name="categories"
-                              >
-                              <option value="housing">Housing</option>
-                              <option value="jobs">Jobs</option>
-                              <option value="services">Services</option>
-                              <option value="forSale">For Sale</option>
-                              <option value="other">Other</option>
-                              </select>
-                            </div>
-                            <div class="mb-3 mt-3">
-                              <label for="listName" class="form-label">Type:</label>
-                              <input
-                                type="text"
-                                name="listName"
-                                class="form-control"
-                                id="listName"
-                                value="<%= list.category_type %>"
-                                placeholder="e.g apartment, service crew, home service, selling electric fan, other services offered."
-                              />
-                            </div>
-                            <div class="mb-3">
-                              <label for="descriptionTextArea" class="form-label"
-                                >Description:</label
-                              >
-                              <textarea
-                                name="description"
-                                class="form-control"
-                                id="descriptionTextArea"
-                                rows="3"
-                              ><%= list.category_description %></textarea>
-                            </div>
-                            <div class="mb-3">
-                              <label for="imageUpload" class="form-label"
-                                >Current Image: <strong><%= list.image_uploaded %></strong></label
-                              >
-                              <input type="file" name="imageUpload" class="form-control"/>
-                            </div>
-                          </form>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                          <button type="button" class="btn btn-primary">Save</button>
+
+                    <!-- Modals for Update -->
+                    <!-- For Edit Type -->
+                <div class="modal fade" id="<%= `id${list.id}` %>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Update Category Type</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="/updateCategType/<%= list.id %>" method="POST">
+                    <div class="modal-body">
+                      <input type="text" class="form-control" name="editType" value="<%= list.category_type %>">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                      
+                        <button class="btn btn-primary btn-sm">Save Changes</button>
+                      
+                    </div>
+                  </form>
+                  </div>
+                </div>
+                </div>
+                    <!-- For Edit Description -->
+                <div class="modal fade" id="<%= `id${list.id}1` %>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Update Category Description</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <form action="/updateCategDescription/<%= list.id %>" method="POST">
+                          <div class="modal-body">
+                            <textarea
+                              name="editDescription"
+                              class="form-control"
+                              id="descriptionTextArea"
+                              placeholder="Enter description..."
+                              rows="5"
+                            ><%= list.category_description %></textarea>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                            
+                              <button class="btn btn-primary btn-sm">Save Changes</button>
+                            
+                          </div>
+                        </form>
                         </div>
                       </div>
-                    </div>
-                  </div>
+                </div>
+                       <!-- For Edit Category -->
+                <div class="modal fade" id="<%= `id${list.id}2` %>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLabel">Update Category</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="/updateCateg/<%= list.id %>" method="POST">
+                            <div class="modal-body">
+                              <div class="mb-3">
+                                <label for="chooseCategory" class="form-label">Choose New Category:</label>
+                                <select
+                                  class="form-select"
+                                  aria-label="Default select example"
+                                  name="categories">
+                                  <option value="housing">Housing</option>
+                                  <option value="jobs">Jobs</option>
+                                  <option value="services">Services</option>
+                                  <option value="forSale">For Sale</option>
+                                  <option value="other">Other</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                              
+                                <button class="btn btn-primary btn-sm">Save Changes</button>
+                              
+                            </div>
+                          </form>
+                          </div>
+                        </div>
+                </div>
               <% }); %>
             <% } else { %>
               <p class="text-center">You don't have contents yet.</p>
+
+              
             <% } %>
       </div>
-</div>
+  </div>
+
+
+
+
 <%- include("../partials/footer.ejs") %>
