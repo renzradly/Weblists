@@ -54,10 +54,15 @@ const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "public/images/" + req.user.id);
   },
+  //below are using the base name of the original name of the file
+  //to remove ".png", you need to pass it in suffix in path.basename
   filename: function (req, file, cb) {
     cb(
       null,
-      req.body.listName + "-" + Date.now() + path.extname(file.originalname)
+      path.basename(file.originalname, path.extname(file.originalname)) +
+        "-" +
+        Date.now() +
+        path.extname(file.originalname)
     );
   },
 });
@@ -72,16 +77,21 @@ const upload = multer({
 }).single("imageUpload");
 
 //home page route
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
   if (req.isAuthenticated()) {
     res.render("./user/profile.ejs", {
       user: req.user.email,
     });
   } else {
-    res.render("navigation/home.ejs");
+    const result = await db.query(
+      "SELECT * FROM user_uploads JOIN users ON user_uploads.users_id = users.id ORDER BY date_added DESC"
+    );
+    const checkRows = result.rows;
+    res.render("navigation/home.ejs", {
+      allList: checkRows,
+    });
   }
 });
-
 //housing route
 app.get("/housing", upload, async (req, res) => {
   const categ = "housing";
@@ -91,7 +101,7 @@ app.get("/housing", upload, async (req, res) => {
     });
   } else {
     const result = await db.query(
-      "SELECT * FROM user_uploads WHERE category = $1",
+      "SELECT * FROM user_uploads JOIN users ON user_uploads.users_id = users.id WHERE category = $1",
       [categ]
     );
     const checkRows = result.rows;
@@ -100,44 +110,76 @@ app.get("/housing", upload, async (req, res) => {
     });
   }
 });
-
-app.get("/jobs", (req, res) => {
+//job route
+app.get("/jobs", async (req, res) => {
+  const categ = "jobs";
   if (req.isAuthenticated()) {
     res.render("./user/profile.ejs", {
       user: req.user.email,
     });
   } else {
-    res.render("categories/jobs.ejs");
+    const result = await db.query(
+      "SELECT * FROM user_uploads JOIN users ON user_uploads.users_id = users.id WHERE category = $1",
+      [categ]
+    );
+    const checkRows = result.rows;
+    res.render("categories/jobs.ejs", {
+      jobsList: checkRows,
+    });
   }
 });
-
-app.get("/services", (req, res) => {
+//services route
+app.get("/services", async (req, res) => {
+  const categ = "services";
   if (req.isAuthenticated()) {
     res.render("./user/profile.ejs", {
       user: req.user.email,
     });
   } else {
-    res.render("categories/services.ejs");
+    const result = await db.query(
+      "SELECT * FROM user_uploads JOIN users ON user_uploads.users_id = users.id WHERE category = $1",
+      [categ]
+    );
+    const checkRows = result.rows;
+    res.render("categories/services.ejs", {
+      servicesList: checkRows,
+    });
   }
 });
-
-app.get("/forSale", (req, res) => {
+//for sale route
+app.get("/forSale", async (req, res) => {
+  const categ = "forSale";
   if (req.isAuthenticated()) {
     res.render("./user/profile.ejs", {
       user: req.user.email,
     });
   } else {
-    res.render("categories/forSale.ejs");
+    const result = await db.query(
+      "SELECT * FROM user_uploads JOIN users ON user_uploads.users_id = users.id WHERE category = $1",
+      [categ]
+    );
+    const checkRows = result.rows;
+    res.render("categories/forSale.ejs", {
+      forSaleList: checkRows,
+    });
   }
 });
-
-app.get("/other", (req, res) => {
+//other route
+app.get("/other", async (req, res) => {
+  const categ = "other";
   if (req.isAuthenticated()) {
     res.render("./user/profile.ejs", {
       user: req.user.email,
     });
   } else {
-    res.render("categories/other.ejs");
+    const result = await db.query(
+      "SELECT * FROM user_uploads JOIN users ON user_uploads.users_id = users.id WHERE category = $1",
+      [categ]
+    );
+    const checkRows = result.rows;
+    res.render("categories/other.ejs", {
+      otherList: checkRows,
+    });
   }
 });
 
@@ -183,7 +225,8 @@ app.get("/register", (req, res) => {
 
 //register a user
 app.post("/register", async (req, res) => {
-  const userEmail = req.body.username;
+  const userName = req.body.username;
+  const userEmail = req.body.email;
   const userPassword = req.body.password;
   const confirmPassword = req.body.confirmPassword;
 
@@ -191,6 +234,10 @@ app.post("/register", async (req, res) => {
     const emailExist = await db.query("SELECT * FROM users WHERE email = $1", [
       userEmail,
     ]);
+    const usernameExist = await db.query(
+      "SELECT * FROM users WHERE username = $1",
+      [userName]
+    );
 
     if (userEmail === "" && userPassword === "") {
       res.render("./user/register.ejs", {
@@ -212,8 +259,8 @@ app.post("/register", async (req, res) => {
             } else {
               if (userPassword === confirmPassword) {
                 const result = await db.query(
-                  "INSERT INTO users (email, password) VALUES ($1, $2)",
-                  [userEmail, hashedPassword]
+                  "INSERT INTO users (email, password, username) VALUES ($1, $2, $3)",
+                  [userEmail, hashedPassword, userName]
                 );
                 res.render("./user/login.ejs", {
                   success:
@@ -298,11 +345,22 @@ function getDate(newDate) {
   var currentDate = newDate.getDate();
   var currentMonth = newDate.getMonth();
   var currentYear = newDate.getFullYear();
-  var currentHours = newDate.getHours()+8;
+  var currentHours = newDate.getHours() + 8;
   var currentMinutes = newDate.getMinutes();
   var currentSeconds = newDate.getSeconds();
-  var convertedDate = new Date(Date.UTC(currentYear,currentMonth,currentDate, currentHours, currentMinutes, currentSeconds));
-  var finalDateTime = convertedDate.toLocaleString('fil-PH', { timeZone: 'UTC' });
+  var convertedDate = new Date(
+    Date.UTC(
+      currentYear,
+      currentMonth,
+      currentDate,
+      currentHours,
+      currentMinutes,
+      currentSeconds
+    )
+  );
+  var finalDateTime = convertedDate.toLocaleString("fil-PH", {
+    timeZone: "UTC",
+  });
   return finalDateTime;
 }
 
@@ -314,29 +372,50 @@ app.post("/uploads", function (req, res) {
     upload(req, res, async (err) => {
       if (err) {
         res.render("./user/uploads.ejs", {
-          error: err, 
+          error: err,
           user: req.user.email,
         });
       } else {
-        const finalDateTime = getDate(new Date());
-        const category = req.body.categories;
-        const category_type = req.body.listName;
-        const category_description = req.body.description;
-        const result = await db.query(
-          "INSERT INTO user_uploads (category, category_type, category_description, users_id, image_uploaded, date_added) VALUES ($1, $2, $3, $4, $5, $6)",
-          [
-            category,
-            category_type,
-            category_description,
-            req.user.id,
-            req.file.filename,
-            finalDateTime
-          ]
-        );
-        res.render("./user/uploads.ejs", {
-          success: "File uploaded.",
-          user: req.user.email,
-        });
+        if (req.file == undefined) {
+          const finalDateTime = getDate(new Date());
+          const category = req.body.categories;
+          const category_type = req.body.listName;
+          const category_description = req.body.description;
+          const result = await db.query(
+            "INSERT INTO user_uploads (category, category_type, category_description, users_id, date_added) VALUES ($1, $2, $3, $4, $5)",
+            [
+              category,
+              category_type,
+              category_description,
+              req.user.id,
+              finalDateTime,
+            ]
+          );
+          res.render("./user/uploads.ejs", {
+            success: "File uploaded.",
+            user: req.user.email,
+          });
+        } else {
+          const finalDateTime = getDate(new Date());
+          const category = req.body.categories;
+          const category_type = req.body.listName;
+          const category_description = req.body.description;
+          const result = await db.query(
+            "INSERT INTO user_uploads (category, category_type, category_description, users_id, image_uploaded, date_added) VALUES ($1, $2, $3, $4, $5, $6)",
+            [
+              category,
+              category_type,
+              category_description,
+              req.user.id,
+              req.file.filename,
+              finalDateTime,
+            ]
+          );
+          res.render("./user/uploads.ejs", {
+            success: "File uploaded.",
+            user: req.user.email,
+          });
+        }
       }
     });
   } else {
@@ -347,25 +426,46 @@ app.post("/uploads", function (req, res) {
           user: req.user.email,
         });
       } else {
-        const finalDateTime = getDate(new Date());
-        const category = req.body.categories;
-        const category_type = req.body.listName;
-        const category_description = req.body.description;
-        const result = await db.query(
-          "INSERT INTO user_uploads (category, category_type, category_description, users_id, image_uploaded, date_added) VALUES ($1, $2, $3, $4, $5, $6)",
-          [
-            category,
-            category_type,
-            category_description,
-            req.user.id,
-            req.file.filename,
-            finalDateTime
-          ]
-        );
-        res.render("./user/uploads.ejs", {
-          success: "File uploaded.",
-          user: req.user.email,
-        });
+        if (req.file == undefined) {
+          const finalDateTime = getDate(new Date());
+          const category = req.body.categories;
+          const category_type = req.body.listName;
+          const category_description = req.body.description;
+          const result = await db.query(
+            "INSERT INTO user_uploads (category, category_type, category_description, users_id, date_added) VALUES ($1, $2, $3, $4, $5)",
+            [
+              category,
+              category_type,
+              category_description,
+              req.user.id,
+              finalDateTime,
+            ]
+          );
+          res.render("./user/uploads.ejs", {
+            success: "File uploaded.",
+            user: req.user.email,
+          });
+        } else {
+          const finalDateTime = getDate(new Date());
+          const category = req.body.categories;
+          const category_type = req.body.listName;
+          const category_description = req.body.description;
+          const result = await db.query(
+            "INSERT INTO user_uploads (category, category_type, category_description, users_id, image_uploaded, date_added) VALUES ($1, $2, $3, $4, $5, $6)",
+            [
+              category,
+              category_type,
+              category_description,
+              req.user.id,
+              req.file.filename,
+              finalDateTime,
+            ]
+          );
+          res.render("./user/uploads.ejs", {
+            success: "File uploaded.",
+            user: req.user.email,
+          });
+        }
       }
     });
   }
@@ -381,6 +481,58 @@ app.get("/messages", (req, res) => {
   }
 });
 
+//update an image
+app.post("/updateImage/:id", (req, res) => {
+  const createFolder = path.join("public/images/", `${req.user.id}`);
+  try {
+    if (!req.isAuthenticated()) {
+      res.redirect("/login");
+    } else {
+      if (fs.existsSync(createFolder)) {
+        upload(req, res, async (err) => {
+          if (err) {
+            res.send("An error occured. You need to upload an image.")
+          } else {
+            if (req.file == undefined) {
+              res.send("Select an image first.");
+            } else {
+              const myImage = req.body.imageName;
+              if (myImage) {
+                fs.unlink(
+                  `public/images/${req.user.id}/${myImage}`,
+                  async (err) => {
+                    if (err) {
+                      console.log(err);
+                    } else {
+                      const finalDateTime = getDate(new Date());
+                      const idOfContentsToUpdate = req.params.id;
+                      const updateRow = await db.query(
+                        "UPDATE user_uploads SET image_uploaded = $1, date_updated = $2 WHERE id = $3",
+                        [req.file.filename, finalDateTime, idOfContentsToUpdate]
+                      );
+                      res.redirect("/contents");
+                    }
+                  }
+                );
+              } else {
+                const finalDateTime = getDate(new Date());
+                const idOfContentsToUpdate = req.params.id;
+                const updateRow = await db.query(
+                  "UPDATE user_uploads SET image_uploaded = $1, date_updated = $2 WHERE id = $3",
+                  [req.file.filename, finalDateTime, idOfContentsToUpdate]
+                );
+                res.redirect("/contents");
+              }
+            }
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
 //outputing uploaded from user
 app.get("/contents", async (req, res) => {
   if (!req.isAuthenticated()) {
@@ -388,7 +540,7 @@ app.get("/contents", async (req, res) => {
   } else {
     const idOfCurrentUser = req.user.id;
     const result = await db.query(
-      "SELECT * FROM user_uploads WHERE users_id = $1 ORDER BY id DESC",
+      "SELECT * FROM user_uploads WHERE users_id = $1 ORDER BY date_added DESC",
       [idOfCurrentUser]
     );
     const checkRows = result.rows;
@@ -403,29 +555,43 @@ app.get("/contents", async (req, res) => {
 app.post("/contents", async (req, res) => {
   const idOfContentsToDelete = req.body.contentsID;
   const myImage = req.body.imageName;
-
   try {
-    fs.unlink(`public/images/${req.user.id}/${myImage}`, async (err) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("image deleted.");
-        const result = await db.query(
-          "DELETE FROM user_uploads WHERE id = $1",
-          [idOfContentsToDelete]
-        );
-        const idOfCurrentUser = req.user.id;
-        const checkRows = await db.query(
-          "SELECT * FROM user_uploads WHERE users_id = $1 ORDER BY id DESC",
-          [idOfCurrentUser]
-        );
-        const updatedRows = checkRows.rows;
-        res.render("./user/contents.ejs", {
-          allList: updatedRows,
-          user: req.user.email,
-        });
-      }
-    });
+    if (myImage) {
+      fs.unlink(`public/images/${req.user.id}/${myImage}`, async (err) => {
+        if (err) {
+          console.log(err);
+        } else {
+          const result = await db.query(
+            "DELETE FROM user_uploads WHERE id = $1",
+            [idOfContentsToDelete]
+          );
+          const idOfCurrentUser = req.user.id;
+          const checkRows = await db.query(
+            "SELECT * FROM user_uploads WHERE users_id = $1 ORDER BY id DESC",
+            [idOfCurrentUser]
+          );
+          const updatedRows = checkRows.rows;
+          res.render("./user/contents.ejs", {
+            allList: updatedRows,
+            user: req.user.email,
+          });
+        }
+      });
+    } else {
+      const result = await db.query("DELETE FROM user_uploads WHERE id = $1", [
+        idOfContentsToDelete,
+      ]);
+      const idOfCurrentUser = req.user.id;
+      const checkRows = await db.query(
+        "SELECT * FROM user_uploads WHERE users_id = $1 ORDER BY id DESC",
+        [idOfCurrentUser]
+      );
+      const updatedRows = checkRows.rows;
+      res.render("./user/contents.ejs", {
+        allList: updatedRows,
+        user: req.user.email,
+      });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -438,14 +604,12 @@ app.post("/updateCateg/:id", async (req, res) => {
   } else {
     const finalDateTime = getDate(new Date());
     const idOfContentsToUpdate = req.params.id;
-    const category = req.body.categories;;
-      const updateRow = await db.query(
-        "UPDATE user_uploads SET category = $1, date_updated = $2 WHERE id = $3",
-        [
-          category, finalDateTime, idOfContentsToUpdate
-        ]
-      );
-      res.redirect("/contents");
+    const category = req.body.categories;
+    const updateRow = await db.query(
+      "UPDATE user_uploads SET category = $1, date_updated = $2 WHERE id = $3",
+      [category, finalDateTime, idOfContentsToUpdate]
+    );
+    res.redirect("/contents");
   }
 });
 
@@ -458,17 +622,14 @@ app.post("/updateCategType/:id", async (req, res) => {
     const idOfContentsToUpdate = req.params.id;
     const category_type = req.body.editType;
     if (category_type.length > 50) {
-      res.send("50 charaters only allowed.")
+      res.send("50 charaters only allowed.");
     } else {
       const updateRow = await db.query(
         "UPDATE user_uploads SET category_type = $1, date_updated = $2 WHERE id = $3",
-        [
-          category_type, finalDateTime, idOfContentsToUpdate
-        ]
+        [category_type, finalDateTime, idOfContentsToUpdate]
       );
       res.redirect("/contents");
     }
-    
   }
 });
 
@@ -481,13 +642,11 @@ app.post("/updateCategDescription/:id", async (req, res) => {
     const idOfContentsToUpdate = req.params.id;
     const category_description = req.body.editDescription;
     if (category_description.length > 500) {
-      res.send("500 charaters only allowed.")
+      res.send("500 charaters only allowed.");
     } else {
       const updateRow = await db.query(
         "UPDATE user_uploads SET category_description = $1, date_updated = $2 WHERE id = $3",
-        [
-          category_description, finalDateTime, idOfContentsToUpdate
-        ]
+        [category_description, finalDateTime, idOfContentsToUpdate]
       );
       res.redirect("/contents");
     }
@@ -506,11 +665,11 @@ app.get("/changePassword", (req, res) => {
 
 //userEmail and userPassword should be matched in HTML input name
 passport.use(
-  new Strategy(async function verify(username, password, cb) {
+  new Strategy(async function verify(email, password, cb) {
     try {
       const emailExist = await db.query(
         "SELECT * FROM users WHERE email = $1",
-        [username]
+        [email]
       );
       if (emailExist.rows.length > 0) {
         const user = emailExist.rows[0]; //setting up current user

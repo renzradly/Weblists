@@ -1,6 +1,42 @@
 <%- include("../partials/header.ejs") %>
 <div class="container" id="main_content">
-    <h1>Services</h1>
+  <h6>Services Lists</h6>
+  <div class="row grid" data-masonry='{"percentPosition": true }'>
+  <% if(servicesList.length) { %>
+      <% for (let list of servicesList) {%>
+            <div class="col-sm-6 col-md-4 col-xl-3 pb-3 px-2">
+              <div class="card">
+                <% if(list.image_uploaded) {%>
+                  <a href="/"> 
+                <img class="card-img-top" src="<%= `images/${list.users_id}/${list.image_uploaded}` %>" alt="<%= list.image_uploaded %>">
+                  </a>
+                    <%} else {%>
+                    <a href="/"> 
+                    <img class="card-img-top" src="<%= `images/default_image.jpg` %>" alt="no image uploaded">
+                  </a>
+                <% } %>
+                <div class="card-body">
+                  <h6 class="card-title"><%= list.category_type %></h6>
+                  <p class="card-text"><%= list.category_description %></p>
+                  <a href="#" class="btn btn-primary btn-sm">Message</a>
+                </div>
+                <div class="card-footer">
+                  <small class="text-muted">
+                    <% if (list.date_added && list.date_updated) { %>
+                      <strong>Posted:</strong> <%= list.date_added %> <br />
+                      <strong>Updated:</strong> <%= list.date_updated %> <br />
+                      <strong>Uploaded By:</strong> <%= list.username %> <% } else { %>
+                      <strong>Posted:</strong> <%= list.date_added %> <br />
+                      <strong>Uploaded By:</strong> <%= list.username %> <% } %>
+                  </small>
+                </div>
+              </div>
+            </div>
+      <% } %>
+  <% } else { %>
+    <p class="text-center">Our services lists are empty.</p>
+  <% } %>
+  </div>
 </div>
 
 <%- include("../partials/footer.ejs") %>

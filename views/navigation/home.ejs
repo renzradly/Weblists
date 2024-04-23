@@ -1,131 +1,45 @@
 <%- include("../partials/header.ejs") %>
 <div class="container" id="main_content">
-  
-    <h6>Most Viewed</h6>
-      <div class="row">
-        <div class="col-sm-3">
-          <div class="card text-dark bg-light mb-3">
-            <div class="card-header">Header
-              <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle float-end">
-            </div>
-            <div class="card-body">
-              <h5 class="card-title">Light card title</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              <a href="#" class="btn btn-primary btn-sm">More details</a>
-            </div>
-            <div class="card-footer text-muted">
-              <strong>Last Updated:</strong>
-              <p class="float-end">2 days ago</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="card text-dark bg-light mb-3">
-            <div class="card-header">Header
-              <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle float-end">
-            </div>
-            <div class="card-body">
-              <h5 class="card-title">Light card title</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            </div>
-            <div class="card-footer text-muted">
-              <strong>Last Updated:</strong>
-              <p class="float-end">2 days ago</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="card text-dark bg-light mb-3">
-            <div class="card-header">Header
-              <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle float-end">
-            </div>
-            <div class="card-body">
-              <h5 class="card-title">Light card title</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            </div>
-            <div class="card-footer text-muted">
-              <strong>Last Updated:</strong>
-              <p class="float-end">2 days ago</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="card text-dark bg-light mb-3">
-            <div class="card-header">Header
-              <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle float-end">
-            </div>
-            <div class="card-body">
-              <h5 class="card-title">Light card title</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            </div>
-            <div class="card-footer text-muted">
-              <strong>Last Updated:</strong>
-              <p class="float-end">2 days ago</p>
-            </div>
-          </div>
-          </div>
-          <div class="col-sm-3">
-            <div class="card text-dark bg-light mb-3">
-              <div class="card-header">Header
-                <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle float-end">
-              </div>
-              <div class="card-body">
-                <h5 class="card-title">Light card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              </div>
-              <div class="card-footer text-muted">
-                <strong>Last Updated:</strong>
-                <p class="float-end">2 days ago</p>
+  <h6>Listings</h6>
+  <div class="row grid" data-masonry='{"percentPosition": true }'>
+  <% if(allList.length) { %>
+      <% for (let list of allList) {%>
+            <div class="col-sm-6 col-md-4 col-xl-3 pb-3 px-2">
+              <div class="card">
+                <div class="card-header">
+                  <span class="badge bg-secondary"><%= list.category %></span> 
+                </div>
+                <% if(list.image_uploaded) {%>
+                  <a href="/"> 
+                <img class="card-img-top" src="<%= `images/${list.users_id}/${list.image_uploaded}` %>" alt="<%= list.image_uploaded %>">
+              </a>
+                <%} else {%>
+                  <a href="/"> 
+                <img class="card-img-top" src="<%= `images/default_image.jpg` %>" alt="no image uploaded">
+              </a>
+                <% } %>
+                <div class="card-body">
+                  <h6 class="card-title"><%= list.category_type %></h6>
+                  <p class="card-text"><%= list.category_description %></p>
+                  <a href="#" class="btn btn-primary btn-sm">Message</a>
+                </div>
+                <div class="card-footer">
+                  <small class="text-muted">
+                    <% if (list.date_added && list.date_updated) { %>
+                      <strong>Posted:</strong> <%= list.date_added %> <br />
+                      <strong>Updated:</strong> <%= list.date_updated %> <br />
+                      <strong>Uploaded By:</strong> <%= list.username %> <% } else { %>
+                      <strong>Posted:</strong> <%= list.date_added %> <br />
+                      <strong>Uploaded By:</strong> <%= list.username %> <% } %>
+                  </small>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="col-sm-3">
-            <div class="card text-dark bg-light mb-3">
-              <div class="card-header">Header
-                <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle float-end">
-              </div>
-              <div class="card-body">
-                <h5 class="card-title">Light card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              </div>
-              <div class="card-footer text-muted">
-                <strong>Last Updated:</strong>
-                <p class="float-end">2 days ago</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-3">
-            <div class="card text-dark bg-light mb-3">
-              <div class="card-header">Header
-                <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle float-end">
-              </div>
-              <div class="card-body">
-                <h5 class="card-title">Light card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              </div>
-              <div class="card-footer text-muted">
-                <strong>Last Updated:</strong>
-                <p class="float-end">2 days ago</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-3">
-            <div class="card text-dark bg-light mb-3">
-              <div class="card-header">Header
-                <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle float-end">
-              </div>
-              <div class="card-body">
-                <h5 class="card-title">Light card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              </div>
-              <div class="card-footer text-muted">
-                <strong>Last Updated:</strong>
-                <p class="float-end">2 days ago</p>
-              </div>
-            </div>
-            </div>
-      </div>
-
+      <% } %>
+  <% } else { %>
+    <p class="text-center">Our housing lists are empty.</p>
+  <% } %>
+  </div>
 </div>
 
 <%- include("../partials/footer.ejs") %>

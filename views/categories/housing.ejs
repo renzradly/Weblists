@@ -1,34 +1,42 @@
 <%- include("../partials/header.ejs") %>
 <div class="container" id="main_content">
-  <h6 name="housing">Housing</h6>
-    <div class="row">
-        <% if(housingList.length) { %>
-            <% for (let list of housingList) {%>
-          <div class="col-sm-3">
-          <div class="card text-dark bg-light mb-3">
-            <% if(list.image_uploaded) {%>
-            <img class="card-img-top" src="<%= `images/${list.users_id}/${list.image_uploaded}` %>" alt="<%= list.image_uploaded %>">
-            <%} else {%>
-            <img class="card-img-top" src="<%= `images/default_image.jpg` %>" alt="no image uploaded">
-            <% } %>
-            <div class="card-body">
-              <h6 class="card-title"><%= list.category_type %></h6>
-              <p class="card-text">
-                <%= list.category_description %>
-              </p>
-              <a href="#" class="btn btn-primary btn-sm">More details</a>
+  <h6>Housing Lists</h6>
+  <div class="row grid" data-masonry='{"percentPosition": true }'>
+  <% if(housingList.length) { %>
+      <% for (let list of housingList) {%>
+            <div class="col-sm-6 col-md-4 col-xl-3 pb-3 px-2">
+              <div class="card">
+                <% if(list.image_uploaded) {%>
+                  <a href="/"> 
+                <img class="card-img-top" src="<%= `images/${list.users_id}/${list.image_uploaded}` %>" alt="<%= list.image_uploaded %>">
+              </a>
+                <%} else {%>
+                  <a href="/"> 
+                <img class="card-img-top" src="<%= `images/default_image.jpg` %>" alt="no image uploaded">
+              </a>
+                <% } %>
+                <div class="card-body">
+                  <h6 class="card-title"><%= list.category_type %></h6>
+                  <p class="card-text"><%= list.category_description %></p>
+                  <a href="#" class="btn btn-primary btn-sm">Message</a>
+                </div>
+                <div class="card-footer">
+                  <small class="text-muted">
+                    <% if (list.date_added && list.date_updated) { %>
+                      <strong>Posted:</strong> <%= list.date_added %> <br />
+                      <strong>Updated:</strong> <%= list.date_updated %> <br />
+                      <strong>Uploaded By:</strong> <%= list.username %> <% } else { %>
+                      <strong>Posted:</strong> <%= list.date_added %> <br />
+                      <strong>Uploaded By:</strong> <%= list.username %> <% } %>
+                  </small>
+                </div>
+              </div>
             </div>
-            <div class="card-footer">
-              <p class="mb-0">Last Updated:</p>
-              <p class="float-end mb-0"></p>
-            </div>
-          </div>
-        </div>
-          <% } %>
-        <% } else { %>
-          <p>Our housing lists are empty.</p>
-        <% } %>
-    </div>
+      <% } %>
+  <% } else { %>
+    <p class="text-center">Our housing lists are empty.</p>
+  <% } %>
+  </div>
 </div>
 
 <%- include("../partials/footer.ejs") %>
